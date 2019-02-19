@@ -1,0 +1,30 @@
+import requests
+from bs4 import BeautifulSoup
+
+aimurl = "http://www.biquyun.com/0_37/"  # 爬虫目标网址
+url = "http://www.biquge.com.tw"  # href前面的内容
+
+
+# 输入网址 获得网页的soup
+def getsoup(url):
+    res = requests.get(url)  # 以get方法访问目标网址获取网页信息
+    res.encoding = 'gb2312'  # 该网页是以gb2312的编码形式显示的
+    soup = BeautifulSoup(res.text, 'html.parser')  # 使用美丽汤解析网页内容
+    return soup
+
+
+soup = getsoup(aimurl)
+
+chapterlist = []  # 存放章节的url
+chaptertextlist = []  # 存放章节标题
+for i in soup.select('.box_con #list a'):
+    chapterlist.append(url + i['href'])
+    chaptertextlist.append(i.text)
+# 分析章节内容，并写入txt文本
+for i, j in zip(chapterlist, chaptertextlist):
+    print(j)
+    tempsoup = getsoup(i)
+    temptext = tempsoup.select('#content')[0].text  # 正文内容在属性content下   class用.xx  属性＃
+    path = r'D:\BigData\py\test\斗罗大陆II.txt'
+    with open(path, 'a', encoding='utf-8') as f:
+        f.write(j + '\n' + temptext + '\n')
